@@ -1,0 +1,17 @@
+<gettingUpState>
+    <check>
+        <methods>
+            <method sensor="accelerometer">
+                
+            </method>
+        </methods>
+    </check>
+    <action>
+        <branch value="true">
+
+        </branch>
+        <branch value="false">
+
+        </branch>
+    </action>
+</gettingUpState>
