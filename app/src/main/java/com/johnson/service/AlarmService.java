@@ -1,4 +1,4 @@
-package com.example.johnson.service;
+package com.johnson.service;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -10,15 +10,16 @@ import android.hardware.SensorManager;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.example.johnson.morningAssistant.MyActivity;
+import com.johnson.morningAssistant.MyActivity;
 
 import java.util.List;
 
 /**
  * Created by johnson on 8/31/14.
+ * This is the service running background as the rule of alarm clock
  */
-public class MonitorService extends IntentService{
-    public MonitorService() {
+public class AlarmService extends IntentService{
+    public AlarmService() {
         super("Monitor Service");
     }
 

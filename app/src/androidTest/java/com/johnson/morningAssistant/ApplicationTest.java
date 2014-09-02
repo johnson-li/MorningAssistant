@@ -1,4 +1,4 @@
-package com.example.johnson.morningAssistant;
+package com.johnson.morningAssistant;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

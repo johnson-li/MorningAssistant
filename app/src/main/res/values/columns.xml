@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="HOUR">hour</string>
+    <string name="MINUTE">minute</string>
+    <string name="SECOND">second</string>
+    <string name="DAY_OF_WEEK">dayOfWeek</string>
+    <string name="ALARM_TIME">alarmTime</string>
+</resources>

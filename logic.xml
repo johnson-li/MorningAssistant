@@ -1,17 +1,18 @@
+<!-- This document records my rule on determining weather a ring successfully wakes the user up and the following action-->
 <gettingUpState>
     <check>
         <methods>
             <method sensor="accelerometer">
-                
+
             </method>
         </methods>
     </check>
     <action>
         <branch value="true">
-
+            <!-- getting up successfully-->
         </branch>
         <branch value="false">
-
+            <!-- failed to get up, further reminder required-->
         </branch>
     </action>
 </gettingUpState>
