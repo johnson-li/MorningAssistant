@@ -7,8 +7,14 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <service android:name="com.johnson.service.AlarmService"
+
+        <provider
+            android:authorities="com.johnson.morningAssistant"
+            android:name="com.johnson.alarmClock.AlarmClockProvider" />
+
+        <service android:name="com.johnson.service.ServiceManager"
             android:exported="false" />
+
         <activity
             android:name="com.johnson.morningAssistant.MyActivity"
             android:label="@string/app_name" >

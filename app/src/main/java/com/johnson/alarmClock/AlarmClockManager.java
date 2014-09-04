@@ -9,11 +9,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
+import android.util.Log;
 
-import com.johnson.receiver.AlarmReceiver;
+import com.johnson.morningAssistant.MyActivity;
+import com.johnson.service.ServiceManager;
 
 /**
  * Created by johnson on 9/1/14.
+ * This manager controls all alarm clocks and has the kernel function to set up alarm
+ * clock in android system
  */
 public class AlarmClockManager {
     public static String ALARM_DATA = "alarmData";
@@ -37,34 +41,60 @@ public class AlarmClockManager {
         alarmClock.enable = true;
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
-        values.put(AlarmClock.Column.ENABLE.toString(), alarmClock.enable);
+        values.put(AlarmClock.Column.ENABLE.toString(), true);
         resolver.update(ContentUris.withAppendedId(AlarmClock.CONTENT_URI, alarmId), values, null, null);
         setNextAlarm(context);
     }
 
-    public static void setNextAlarm(Context context) {
-        AlarmClock alarmClock = getFirstAlarm(context);
-        if (alarmClock == null) {
-            disableAlarm(context);
-            return;
-        }
-        enableAlarm(context, alarmClock);
+    public static void clearAlarm(Context context) {
+        Cursor cursor = getAlarmCursor(context);
+        do {
+            int alarmId = cursor.getInt(AlarmClock.Column.ALARM_ID.ordinal());
+            Log.d(MyActivity.LOG_TAG, "delete alarm clock " + alarmId);
+            deleteAlarm(context, alarmId);
+        } while (cursor.moveToNext());
     }
 
-    static Cursor getAlarmsCursor(Context context) {
+    public static void setNextAlarm(Context context) {
+        Cursor cursor = getAlarmCursor(context);
+        if (!cursor.moveToFirst()) return;
+        long shortest = 0;
+        AlarmClock nextAlarmClock = null;
+        do {
+            AlarmClock alarmClock = new AlarmClock(cursor);
+            if (!alarmClock.enable) {
+                continue;
+            }
+            long time = alarmClock.getNextAlertTime();
+            if (shortest == 0 || time < shortest) {
+                shortest = time;
+                nextAlarmClock = alarmClock;
+            }
+        } while (cursor.moveToNext());
+        if (null != nextAlarmClock) {
+            enableAlarm(context, nextAlarmClock);
+        }
+    }
+
+    static Cursor getAlarmCursor(Context context) {
         ContentResolver contentResolver = context.getContentResolver();
-        return contentResolver.query(AlarmClock.CONTENT_URI, AlarmClock.getColumnValues(), null, null, AlarmClock.DEFAULT_SORT_ORDER);
+        Cursor cursor = contentResolver.query(AlarmClock.CONTENT_URI, AlarmClock.getColumnValues(), null, null, AlarmClock.DEFAULT_SORT_ORDER);
+        cursor.moveToFirst();
+        return cursor;
     }
 
     static Cursor getAlarmCursor(Context context, int alarmId) {
-        return context.getContentResolver().query(ContentUris.withAppendedId(AlarmClock.CONTENT_URI, alarmId), AlarmClock.getColumnValues(), null, null, null);
+        Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(AlarmClock.CONTENT_URI, alarmId), AlarmClock.getColumnValues(), null, null, null);
+        cursor.moveToFirst();
+        return cursor;
     }
 
     public static AlarmClock getFirstAlarm(Context context) {
-        Cursor cursor = getAlarmsCursor(context);
+        Cursor cursor = getAlarmCursor(context);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                return new AlarmClock(cursor);
+                AlarmClock alarmClock = new AlarmClock(cursor);
+                return alarmClock;
             }
             cursor.close();
         }
@@ -73,10 +103,18 @@ public class AlarmClockManager {
 
     public static AlarmClock getAlarm(Context context, int alarmId) {
         Cursor cursor = getAlarmCursor(context, alarmId);
-        return cursor == null ? null : new AlarmClock(cursor);
+        if (cursor == null) {
+            return null;
+        }
+        AlarmClock alarmClock = new AlarmClock(cursor);
+        return alarmClock;
     }
 
-    public static long setAlarm(Context context, AlarmClock alarmClock) {
+    public static void setAlarm(Context context, int alarmId, boolean enable, int hour, int minute, int second, String label, AlarmClock.DaysOfWeek daysOfWeek) {
+        setAlarm(context, new AlarmClock(alarmId, hour, minute, second, daysOfWeek, label, enable));
+    }
+
+    public static void setAlarm(Context context, AlarmClock alarmClock) {
         ContentResolver contentResolver = context.getContentResolver();
         ContentValues contentValues = new ContentValues();
         for (AlarmClock.Column column: AlarmClock.Column.values()) {
@@ -86,6 +124,42 @@ public class AlarmClockManager {
                     break;
                 case MINUTE:
                     contentValues.put(column.toString(), alarmClock.minute);
+                    break;
+                case SECOND:
+                    contentValues.put(column.toString(), alarmClock.second);
+                    break;
+                case LABEL:
+                    contentValues.put(column.toString(), alarmClock.label);
+                    break;
+                case ENABLE:
+                    contentValues.put(column.toString(), alarmClock.enable);
+                    break;
+                case DAY_OF_WEEK:
+                    contentValues.put(column.toString(), alarmClock.daysOfWeek.toInt());
+                    break;
+                default:
+            }
+        }
+        contentResolver.update(ContentUris.withAppendedId(AlarmClock.CONTENT_URI, alarmClock.alarmId), contentValues, null, null);
+        setNextAlarm(context);
+    }
+
+    /*
+    *   This method differs from setAlarm from that it does not call setNextAlarm method to avoid dead loop
+    * */
+    public static void updateAlarm(Context context, AlarmClock alarmClock) {
+        ContentResolver contentResolver = context.getContentResolver();
+        ContentValues contentValues = new ContentValues();
+        for (AlarmClock.Column column: AlarmClock.Column.values()) {
+            switch (column) {
+                case HOUR:
+                    contentValues.put(column.toString(), alarmClock.hour);
+                    break;
+                case MINUTE:
+                    contentValues.put(column.toString(), alarmClock.minute);
+                    break;
+                case SECOND:
+                    contentValues.put(column.toString(), alarmClock.second);
                     break;
                 case DAY_OF_WEEK:
                     contentValues.put(column.toString(), alarmClock.daysOfWeek.toInt());
@@ -100,25 +174,24 @@ public class AlarmClockManager {
             }
         }
         contentResolver.update(ContentUris.withAppendedId(AlarmClock.CONTENT_URI, alarmClock.alarmId), contentValues, null, null);
-        setNextAlarm(context);
-        return 0;
     }
 
     static void enableAlarm(Context context, AlarmClock alarmClock) {
         long wakeUpTime = alarmClock.getNextAlertTime();
         android.app.AlarmManager alarmManager = (android.app.AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmReceiver.class);
         Parcel parcel = Parcel.obtain();
         alarmClock.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
+        Intent intent = new Intent(context, ServiceManager.class);
         intent.putExtra(ALARM_DATA, parcel.marshall());
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager.set(android.app.AlarmManager.RTC_WAKEUP, wakeUpTime, pendingIntent);
+        updateAlarm(context, alarmClock);
     }
 
     static void disableAlarm(Context context) {
         android.app.AlarmManager alarmManager = (android.app.AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmReceiver.class);
+        Intent intent = new Intent(context, ServiceManager.class);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager.cancel(pendingIntent);
     }

@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.johnson.alarmClock.AlarmClock;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -25,7 +27,6 @@ public class MyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
 
-        calendarTest();
     }
 
 
@@ -48,6 +49,7 @@ public class MyActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Deprecated
     void calendarTest() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
