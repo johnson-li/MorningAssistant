@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.os.Parcel;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.johnson.alarmClock.AlarmClock;
 import com.johnson.alarmClock.AlarmClockManager;
@@ -39,6 +40,7 @@ public class ServiceManager extends IntentService{
         parcel.setDataPosition(0);
         AlarmClock alarmClock = AlarmClock.CREATOR.createFromParcel(parcel);
         Log.d(MyActivity.LOG_TAG, alarmClock.toString());
+        Log.d(MyActivity.LOG_TAG, alarmClock.getEnable() + "");
 
 //        SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 //        List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
@@ -49,6 +51,15 @@ public class ServiceManager extends IntentService{
 
     @Override
     public void onStart(Intent intent, int startId) {
+        Log.d(MyActivity.LOG_TAG, "service starting ...");
+        AlarmClockManager.setNextAlarm(this);
+        try {
+            Thread.sleep(20000);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
 //        final SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 //        final PowerManager powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
 //        final Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);

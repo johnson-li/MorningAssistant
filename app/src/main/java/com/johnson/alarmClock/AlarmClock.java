@@ -46,7 +46,6 @@ public class AlarmClock implements Parcelable{
         hour = cursor.getInt(Column.HOUR.ordinal());
         minute = cursor.getInt(Column.MINUTE.ordinal());
         second = cursor.getInt(Column.SECOND.ordinal());
-        Log.d(MyActivity.LOG_TAG, "second" + second);
         daysOfWeek = new DaysOfWeek(cursor.getInt(Column.DAY_OF_WEEK.ordinal()));
         label = cursor.getString(Column.LABEL.ordinal());
     }
@@ -128,6 +127,10 @@ public class AlarmClock implements Parcelable{
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    public boolean getEnable() {
+        return enable;
     }
 
     public Parcel getParcel() {

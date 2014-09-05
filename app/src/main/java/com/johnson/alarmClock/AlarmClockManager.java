@@ -1,6 +1,7 @@
 package com.johnson.alarmClock;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -12,7 +13,10 @@ import android.os.Parcel;
 import android.util.Log;
 
 import com.johnson.morningAssistant.MyActivity;
+import com.johnson.receiver.AlarmReceiver;
 import com.johnson.service.ServiceManager;
+
+import java.util.Date;
 
 /**
  * Created by johnson on 9/1/14.
@@ -21,6 +25,7 @@ import com.johnson.service.ServiceManager;
  */
 public class AlarmClockManager {
     public static String ALARM_DATA = "alarmData";
+    public static String ALARM_FILTER = "com.johnson.morningAssistant.ALARM_ALERT";
 
     public static Uri addAlarm(Context context) {
         ContentResolver contentResolver = context.getContentResolver();
@@ -53,6 +58,7 @@ public class AlarmClockManager {
             Log.d(MyActivity.LOG_TAG, "delete alarm clock " + alarmId);
             deleteAlarm(context, alarmId);
         } while (cursor.moveToNext());
+        cursor.close();
     }
 
     public static void setNextAlarm(Context context) {
@@ -71,6 +77,7 @@ public class AlarmClockManager {
                 nextAlarmClock = alarmClock;
             }
         } while (cursor.moveToNext());
+        cursor.close();
         if (null != nextAlarmClock) {
             enableAlarm(context, nextAlarmClock);
         }
@@ -94,6 +101,7 @@ public class AlarmClockManager {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 AlarmClock alarmClock = new AlarmClock(cursor);
+                cursor.close();
                 return alarmClock;
             }
             cursor.close();
@@ -107,6 +115,7 @@ public class AlarmClockManager {
             return null;
         }
         AlarmClock alarmClock = new AlarmClock(cursor);
+        cursor.close();
         return alarmClock;
     }
 
@@ -144,49 +153,18 @@ public class AlarmClockManager {
         setNextAlarm(context);
     }
 
-    /*
-    *   This method differs from setAlarm from that it does not call setNextAlarm method to avoid dead loop
-    * */
-    public static void updateAlarm(Context context, AlarmClock alarmClock) {
-        ContentResolver contentResolver = context.getContentResolver();
-        ContentValues contentValues = new ContentValues();
-        for (AlarmClock.Column column: AlarmClock.Column.values()) {
-            switch (column) {
-                case HOUR:
-                    contentValues.put(column.toString(), alarmClock.hour);
-                    break;
-                case MINUTE:
-                    contentValues.put(column.toString(), alarmClock.minute);
-                    break;
-                case SECOND:
-                    contentValues.put(column.toString(), alarmClock.second);
-                    break;
-                case DAY_OF_WEEK:
-                    contentValues.put(column.toString(), alarmClock.daysOfWeek.toInt());
-                    break;
-                case LABEL:
-                    contentValues.put(column.toString(), alarmClock.label);
-                    break;
-                case ENABLE:
-                    contentValues.put(column.toString(), alarmClock.enable);
-                    break;
-                default:
-            }
-        }
-        contentResolver.update(ContentUris.withAppendedId(AlarmClock.CONTENT_URI, alarmClock.alarmId), contentValues, null, null);
-    }
-
     static void enableAlarm(Context context, AlarmClock alarmClock) {
         long wakeUpTime = alarmClock.getNextAlertTime();
         android.app.AlarmManager alarmManager = (android.app.AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Parcel parcel = Parcel.obtain();
         alarmClock.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
-        Intent intent = new Intent(context, ServiceManager.class);
+        Intent intent = new Intent(context, AlarmReceiver.class);
+//        Intent intent = new Intent(context, MyActivity.class);
         intent.putExtra(ALARM_DATA, parcel.marshall());
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager.set(android.app.AlarmManager.RTC_WAKEUP, wakeUpTime, pendingIntent);
-        updateAlarm(context, alarmClock);
+        Log.d(MyActivity.LOG_TAG, "next alarm: " + new Date(wakeUpTime));
     }
 
     static void disableAlarm(Context context) {

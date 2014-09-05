@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.johnson.alarmClock.AlarmClock;
+import com.johnson.alarmClock.AlarmClockManager;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -26,7 +27,8 @@ public class MyActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
-
+        Log.d(LOG_TAG, "activity starting...");
+//        AlarmClockManager.setNextAlarm(this);
     }
 
 

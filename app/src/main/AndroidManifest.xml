@@ -15,6 +15,9 @@
         <service android:name="com.johnson.service.ServiceManager"
             android:exported="false" />
 
+        <service android:name="com.johnson.receiver.AlarmReceiver"
+            android:exported="false" />
+
         <activity
             android:name="com.johnson.morningAssistant.MyActivity"
             android:label="@string/app_name" >
@@ -24,8 +27,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <receiver android:name="com.johnson.receiver.AlarmReceiver">
-        </receiver>
     </application>
 </manifest>
