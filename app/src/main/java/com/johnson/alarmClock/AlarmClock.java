@@ -139,7 +139,7 @@ public class AlarmClock implements Parcelable{
         return parcel;
     }
 
-    static class DaysOfWeek {
+    public static class DaysOfWeek {
         private Set<DayOfWeek> dayOfWeekSet = new HashSet<DayOfWeek>();
         public DaysOfWeek(int n) {
             for (DayOfWeek dayOfWeek: DayOfWeek.values()) {
@@ -195,6 +195,16 @@ public class AlarmClock implements Parcelable{
                 default:
             }
             return this;
+        }
+
+        public DaysOfWeek addAll() {
+            return this.addDay(Calendar.SUNDAY).addDay(Calendar.MONDAY).addDay(Calendar.TUESDAY).
+                    addDay(Calendar.WEDNESDAY).addDay(Calendar.THURSDAY).addDay(Calendar.FRIDAY).addDay(Calendar.SATURDAY);
+        }
+
+        public DaysOfWeek addWeekday() {
+            return this.addDay(Calendar.MONDAY).addDay(Calendar.TUESDAY).addDay(Calendar.WEDNESDAY).addDay(Calendar.THURSDAY)
+                    .addDay(Calendar.FRIDAY);
         }
 
         public void deleteDay(int day) {
@@ -290,7 +300,7 @@ public class AlarmClock implements Parcelable{
         alertCalendar.set(Calendar.HOUR, hour);
         alertCalendar.set(Calendar.MINUTE, minute);
         alertCalendar.set(Calendar.SECOND, second);
-        if (alertCalendar.before(nowCalendar)) {
+        if (alertCalendar.before(nowCalendar) || alertCalendar.equals(nowCalendar)) {
             alertCalendar.add(Calendar.DATE, 1);
         }
         if (daysOfWeek.isEmpty()) {

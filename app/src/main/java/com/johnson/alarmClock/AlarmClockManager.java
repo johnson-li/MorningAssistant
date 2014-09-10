@@ -1,5 +1,6 @@
 package com.johnson.alarmClock;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -26,6 +27,7 @@ import java.util.Date;
 public class AlarmClockManager {
     public static String ALARM_DATA = "alarmData";
     public static String ALARM_FILTER = "com.johnson.morningAssistant.ALARM_ALERT";
+    static String LOG_TAG = AlarmClockManager.class.getSimpleName();
 
     public static Uri addAlarm(Context context) {
         ContentResolver contentResolver = context.getContentResolver();
@@ -53,6 +55,11 @@ public class AlarmClockManager {
 
     public static void clearAlarm(Context context) {
         Cursor cursor = getAlarmCursor(context);
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            disableAlarm(context);
+            return;
+        }
         do {
             int alarmId = cursor.getInt(AlarmClock.Column.ALARM_ID.ordinal());
             Log.d(MyActivity.LOG_TAG, "delete alarm clock " + alarmId);
@@ -63,7 +70,11 @@ public class AlarmClockManager {
 
     public static void setNextAlarm(Context context) {
         Cursor cursor = getAlarmCursor(context);
-        if (!cursor.moveToFirst()) return;
+        if (!cursor.moveToFirst()) {
+            Log.w(LOG_TAG, "no alarm to set");
+            disableAlarm(context);
+            return;
+        }
         long shortest = 0;
         AlarmClock nextAlarmClock = null;
         do {
@@ -80,6 +91,10 @@ public class AlarmClockManager {
         cursor.close();
         if (null != nextAlarmClock) {
             enableAlarm(context, nextAlarmClock);
+        }
+        else {
+            Log.i(MyActivity.LOG_TAG, "no alarm clock waiting");
+            disableAlarm(context);
         }
     }
 
@@ -168,8 +183,8 @@ public class AlarmClockManager {
     }
 
     static void disableAlarm(Context context) {
-        android.app.AlarmManager alarmManager = (android.app.AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, ServiceManager.class);
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager.cancel(pendingIntent);
     }

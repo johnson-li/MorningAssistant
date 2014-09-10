@@ -12,11 +12,9 @@
             android:authorities="com.johnson.morningAssistant"
             android:name="com.johnson.alarmClock.AlarmClockProvider" />
 
-        <service android:name="com.johnson.service.ServiceManager"
-            android:exported="false" />
+        <service android:name="com.johnson.service.ServiceManager" />
 
-        <service android:name="com.johnson.receiver.AlarmReceiver"
-            android:exported="false" />
+        <service android:name="com.johnson.receiver.AlarmReceiver" />
 
         <activity
             android:name="com.johnson.morningAssistant.MyActivity"
@@ -26,6 +24,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".AlarmActivity">
+
         </activity>
     </application>
 </manifest>

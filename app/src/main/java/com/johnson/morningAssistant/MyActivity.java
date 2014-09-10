@@ -1,36 +1,59 @@
 package com.johnson.morningAssistant;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.johnson.alarmClock.AlarmClock;
 import com.johnson.alarmClock.AlarmClockManager;
+import com.johnson.service.ServiceManager;
 
 import java.util.Calendar;
 import java.util.Date;
 
 
 public class MyActivity extends Activity {
-    public static String LOG_TAG = "johnsonLog";
+    public static final String LOG_TAG = "johnsonLog";
+    public static final int NOTIFICATION_ID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
-        Log.d(LOG_TAG, "activity starting...");
-//        AlarmClockManager.setNextAlarm(this);
+        Button voiceSetting = (Button)findViewById(R.id.voiceSetting);
+        Button manualSetting = (Button)findViewById(R.id.manualSetting);
+        manualSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            startMorningAssistant();
+            finish();
+            }
+        });
+        Button clear = (Button)findViewById(R.id.clear);
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopMorningAssistant();
+            }
+        });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -49,6 +72,97 @@ public class MyActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    void startMorningAssistant() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND, 5);
+        setAlarmClock(calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        startNotification(hour, minute);
+        startServiceManager();
+    }
+
+    void stopMorningAssistant() {
+        clearAlarmClock();
+        stopNotification();
+        stopServiceManager();
+    }
+
+    void setAlarmClock(int hour, int minute, int second) {
+        AlarmClockManager.clearAlarm(this);
+        Uri uri = AlarmClockManager.addAlarm(this);
+        int alarmId = Integer.valueOf(uri.getPathSegments().get(1));
+        AlarmClockManager.setAlarm(this, alarmId, true, hour, minute, second, "label", new AlarmClock.DaysOfWeek().addAll());
+    }
+
+    void clearAlarmClock() {
+        AlarmClockManager.clearAlarm(this);
+    }
+
+    void startNotification(int hour, int minute) {
+        Log.i(MyActivity.LOG_TAG, "start notification");
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
+        /*
+        *   this should work on api 16 or later
+        * */
+//        Notification.Builder notificationBuilder = new Notification.Builder(this).setSmallIcon(R.drawable.ic_launcher)
+//                .setContentTitle("service manager").setContentText("this is a test");
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle("Morning Assistant").setContentText(hour + ":" + minute);
+        Intent intent = new Intent(this, MyActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        builder.setContentIntent(pendingIntent);
+        Notification notification = builder.build();
+        notification.flags |= Notification.FLAG_NO_CLEAR;
+        notificationManager.notify(NOTIFICATION_ID, notification);
+    }
+
+    void stopNotification() {
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFICATION_ID);
+    }
+
+    void startServiceManager() {
+        Intent intent = new Intent(this, ServiceManager.class);
+        intent.putExtra(ServiceManager.INTENT_TYPE, ServiceManager.IntentType.INIT);
+        this.startService(intent);
+    }
+
+    void stopServiceManager() {
+        Intent intent = new Intent(this, ServiceManager.class);
+        stopService(intent);
+    }
+
+    boolean isServiceRunning(Class clazz) {
+        ActivityManager activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo runningServiceInfo: activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (clazz.getName().equals(runningServiceInfo.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Deprecated
+    void serviceManagerTest() {
+        Intent intent = new Intent(this, ServiceManager.class);
+//        this.stopService(intent);
+        this.startService(intent);
+        bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.d(MyActivity.LOG_TAG, "service manager connected");
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                Log.d(MyActivity.LOG_TAG, "service manager disconnected");
+            }
+        }, Context.BIND_AUTO_CREATE);
     }
 
     @Deprecated
