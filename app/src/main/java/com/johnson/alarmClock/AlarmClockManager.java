@@ -26,7 +26,6 @@ import java.util.Date;
  */
 public class AlarmClockManager {
     public static String ALARM_DATA = "alarmData";
-    public static String ALARM_FILTER = "com.johnson.morningAssistant.ALARM_ALERT";
     static String LOG_TAG = AlarmClockManager.class.getSimpleName();
 
     public static Uri addAlarm(Context context) {

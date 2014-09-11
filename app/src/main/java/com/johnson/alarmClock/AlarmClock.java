@@ -294,13 +294,16 @@ public class AlarmClock implements Parcelable{
 
     public Calendar getAlertCalendar() {
         Calendar nowCalendar = Calendar.getInstance();
-        nowCalendar.setTimeInMillis(System.currentTimeMillis());
+        /*
+        *   delay the time right now by 1 second to avoid repeat alarm
+        * */
+        nowCalendar.setTimeInMillis(System.currentTimeMillis() + 1000);
         Calendar alertCalendar = Calendar.getInstance();
         alertCalendar.setTimeInMillis(System.currentTimeMillis());
         alertCalendar.set(Calendar.HOUR, hour);
         alertCalendar.set(Calendar.MINUTE, minute);
         alertCalendar.set(Calendar.SECOND, second);
-        if (alertCalendar.before(nowCalendar) || alertCalendar.equals(nowCalendar)) {
+        if (alertCalendar.before(nowCalendar)) {
             alertCalendar.add(Calendar.DATE, 1);
         }
         if (daysOfWeek.isEmpty()) {
