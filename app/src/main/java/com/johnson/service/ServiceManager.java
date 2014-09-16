@@ -1,15 +1,17 @@
 package com.johnson.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 
+import com.johnson.Log;
 import com.johnson.gettingUpState.AccelerometerMonitor;
 import com.johnson.gettingUpState.Monitor;
+import com.johnson.gettingUpState.WatchDog;
 import com.johnson.morningAssistant.MyActivity;
 
 import java.lang.reflect.Constructor;
@@ -28,30 +30,31 @@ public class ServiceManager extends Service{
     public static Set<Class> monitors = new HashSet<Class>();
     static {
         monitors.add(AccelerometerMonitor.class);
+        monitors.add(WatchDog.class);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i(MyActivity.LOG_TAG, "service manager bound...");
+        Log.i("service manager bound...");
         return new ServiceManagerBinder();
     }
 
     @Override
     public void onCreate() {
-        Log.i(MyActivity.LOG_TAG, "service manager created...");
+        Log.i("service manager created...");
         super.onCreate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(MyActivity.LOG_TAG, "service manager started...");
+        Log.i("service manager started...");
         parseIntent(intent);
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
-        Log.i(MyActivity.LOG_TAG, "service manager destroyed...");
+        Log.i("service manager destroyed...");
         super.onDestroy();
     }
 
@@ -62,27 +65,20 @@ public class ServiceManager extends Service{
         Handler handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                if (msg.what == GETTING_UP_SUCCESS) {
-                    for (Monitor monitor: monitorSet) {
-                        if (monitor != null && monitor.isAlive()) {
-                            monitor.interrupt();
-                        }
-                    }
-                    checkMonitorStatus(monitorSet);
-                    handleGettingUp();
-                }
+                interruptMonitors(monitorSet);
+                handleGettingUp(msg.what == GETTING_UP_SUCCESS);
             }
         };
         switch (intentType) {
             case INIT:
-                Log.i(LOG_TAG, "initiated");
+                Log.i("initiated");
                 break;
             case ALERT:
-                Log.i(LOG_TAG, "alert message received");
+                Log.i("alert message received");
                 for (Class clazz: monitors) {
                     try {
-                        Constructor constructor = clazz.getConstructor(new Class[]{Handler.class});
-                        Monitor monitor = (Monitor)constructor.newInstance(handler);
+                        Constructor constructor = clazz.getConstructor(new Class[]{Handler.class, Context.class});
+                        Monitor monitor = (Monitor)constructor.newInstance(handler, this);
                         monitorSet.add(monitor);
                         monitor.start();
                     }
@@ -92,11 +88,28 @@ public class ServiceManager extends Service{
                 }
                 break;
             case INTERRUPT:
-                Log.i(LOG_TAG, "interrupted");
+                Log.i("interrupted");
 
                 break;
-            default:
+            case NOTIFICATION:
+                /*
+                *   this case shows that alarm notification is cleared or clicked, so
+                *   the use must have waken up.
+                * */
+                Log.i("notification");
+                interruptMonitors(monitorSet);
+                handleGettingUp(true);
+                break;
         }
+    }
+
+    void interruptMonitors(Set<Monitor> monitorSet) {
+        for (Monitor monitor: monitorSet) {
+            if (monitor != null && monitor.isAlive()) {
+                monitor.interrupt();
+            }
+        }
+        checkMonitorStatus(monitorSet);
     }
 
     void checkMonitorStatus(Set<Monitor> monitorSet) {
@@ -108,13 +121,19 @@ public class ServiceManager extends Service{
         }
         for (Monitor monitor: monitorSet) {
             if (monitor != null) {
-                Log.d(LOG_TAG, monitor.getName() + ": " + monitor.isAlive());
+                Log.d(monitor.getClassName() + " is alive: " + monitor.isAlive());
             }
         }
+        monitorSet.clear();
     }
 
-    void handleGettingUp() {
-        Log.i(LOG_TAG, "successfully getting up");
+    void handleGettingUp(boolean state) {
+        if (state) {
+            Log.i("successfully getting up");
+        }
+        else {
+            Log.i("failed to get up");
+        }
     }
 
     class ServiceManagerBinder extends Binder {
@@ -124,6 +143,6 @@ public class ServiceManager extends Service{
     }
 
     public enum IntentType {
-        INIT, ALERT, INTERRUPT
+        INIT, ALERT, INTERRUPT, NOTIFICATION
     }
 }

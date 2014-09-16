@@ -2,6 +2,7 @@ package com.johnson;
 
 /**
  * Created by johnson on 9/12/14.
+ * This class is used to replace android.util.Log.d with one feature from log4j
  */
 public class Log {
 
@@ -38,6 +39,10 @@ public class Log {
         android.util.Log.v(getLogTag(), str);
     }
 
+    public static void w(String str) {
+        android.util.Log.w(getLogTag(), str);
+    }
+
     public static void d(Object object) {
         android.util.Log.d(getLogTag(), object.toString());
     }
@@ -52,5 +57,9 @@ public class Log {
 
     public static void v(Object object) {
         android.util.Log.v(getLogTag(), object.toString());
+    }
+
+    public static void w(Object object) {
+        android.util.Log.w(getLogTag(), object.toString());
     }
 }

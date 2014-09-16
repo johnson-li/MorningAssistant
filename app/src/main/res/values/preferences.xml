@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="useVoiceToStart">useVoiceToStart</string>
+    <string name="useVoiceEngine">useVoiceEngine</string>
+    <string name="alarmHour">alarmHour</string>
+    <string name="alarmMinute">alarmMinute</string>
+    <string name="timeFormat">timeFormat</string>
+    <string name="timeFormatDefault">24</string>
+    <string name="appId">4d6774d0</string>
+    <string name="advancedTime">advancedTime</string>
+    <string name="advancedTimeDefault">15</string>
+
+
+    <string-array name="timeFormat">
+        <item>12-hour</item>
+        <item>24-hour</item>
+    </string-array>
+    <string-array name="timeFormatValue">
+        <item>12</item>
+        <item>24</item>
+    </string-array>
+</resources>

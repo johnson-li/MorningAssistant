@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Voice" >
+
+        <CheckBoxPreference
+            android:key="@string/useVoiceEngine"
+            android:title="Voice Engine"
+            android:summary="Check to use voice engine"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="@string/useVoiceToStart"
+            android:title="Set Alarm"
+            android:summary="set alarm by speech"
+            android:dependency="useVoiceEngine"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Time Format" >
+        <ListPreference
+            android:key="@string/timeFormat"
+            android:title="Time Format"
+            android:summary="12-hour or 24-hour"
+            android:dialogTitle="Time Format"
+            android:entries="@array/timeFormat"
+            android:entryValues="@array/timeFormatValue"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Alarm" >
+        <RingtonePreference
+            android:title="Alarm Ringtone" />
+        <EditTextPreference
+            android:title="Advanced Time"
+            android:key="@string/advancedTime"
+            android:defaultValue="@string/advancedTimeDefault"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Others" >
+        <Preference
+            android:title="About"
+            android:summary="@string/aboutSummary"/>
+        <Preference
+            android:title="Help" />
+        <Preference
+            android:title="Contact Us" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -1,5 +1,6 @@
 package com.johnson.gettingUpState;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
@@ -12,8 +13,8 @@ import com.johnson.service.ServiceManager;
  * service manager that getting up state is false
  */
 public class WatchDog extends Monitor{
-    public WatchDog(Handler handler) {
-        super(handler);
+    public WatchDog(Handler handler, Context mContext) {
+        super(handler, mContext);
     }
 
     @Override
@@ -24,13 +25,11 @@ public class WatchDog extends Monitor{
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Message message = new Message();
-        message.what = ServiceManager.GETTING_UP_FAILED;
-        handler.sendMessage(message);
+        sendGettingUp(false);
     }
 
     @Override
-    String getClassName() {
+    public String getClassName() {
         return WatchDog.class.getSimpleName();
     }
 }
