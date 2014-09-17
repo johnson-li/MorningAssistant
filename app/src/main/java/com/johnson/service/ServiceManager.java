@@ -9,14 +9,19 @@ import android.os.IBinder;
 import android.os.Message;
 
 import com.johnson.Log;
+import com.johnson.alarmStrategy.Strategy;
 import com.johnson.gettingUpState.AccelerometerMonitor;
 import com.johnson.gettingUpState.Monitor;
 import com.johnson.gettingUpState.WatchDog;
 import com.johnson.morningAssistant.MyActivity;
+import com.johnson.utils.Preferences;
 
 import java.lang.reflect.Constructor;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by johnson on 8/31/14.
@@ -89,17 +94,30 @@ public class ServiceManager extends Service{
                 break;
             case INTERRUPT:
                 Log.i("interrupted");
-
+                Strategy.setNextAlarm();
                 break;
             case NOTIFICATION:
                 /*
                 *   this case shows that alarm notification is cleared or clicked, so
-                *   the use must have waken up.
+                *   the user must have waken up.
                 * */
                 Log.i("notification");
                 interruptMonitors(monitorSet);
                 handleGettingUp(true);
                 break;
+            case SET_ALARM:
+                Log.i("set alarm");
+                /*
+                *   Set alarm in a period of time.
+                *   Otherwise the alarm will be set just before the target time when
+                *   the user gets up before that time arrived
+                * */
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        Strategy.addAlarm();
+                    }
+                }, new Date(new Date().getTime() + Preferences.getAdvancedTime() * 60 * 1000));
         }
     }
 
@@ -142,7 +160,10 @@ public class ServiceManager extends Service{
          }
     }
 
+    /*
+    *   SET_ALARM is a trick to fix my design fault on set alarm
+    * */
     public enum IntentType {
-        INIT, ALERT, INTERRUPT, NOTIFICATION
+        INIT, ALERT, INTERRUPT, NOTIFICATION, SET_ALARM
     }
 }

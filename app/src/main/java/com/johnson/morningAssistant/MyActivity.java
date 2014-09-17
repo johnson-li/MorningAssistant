@@ -65,6 +65,7 @@ public class MyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
         Preferences.setContext(this);
+        Strategy.setContext(this);
         if (Preferences.useVoiceEngine()) {
             initVoiceEngine();
         }
@@ -104,6 +105,7 @@ public class MyActivity extends Activity {
                     stopMorningAssistant();
                 }
                 else {
+                    showAlarmIcon(true);
                     if (Preferences.useVoiceToStart()) {
                         startMorningAssistantByVoice();
                     }
@@ -262,18 +264,28 @@ public class MyActivity extends Activity {
     }
 
     void stopMorningAssistant() {
+        showAlarmIcon(false);
         clearAlarmClock();
         stopNotification();
         stopServiceManager();
         setPowerImage(false);
     }
 
+    void showAlarmIcon(boolean b) {
+        Intent intent = new Intent("android.intent.action.ALARM_CHANGED");
+        intent.putExtra("alarmSet", b);
+        sendBroadcast(intent);
+    }
+
     void addAlarmClock(int hour, int minute, int second) {
         Strategy.setTargetTime(hour, minute, second);
-        AlarmClockManager.clearAlarm(this);
-        Uri uri = AlarmClockManager.addAlarm(this);
-        int alarmId = Integer.valueOf(uri.getPathSegments().get(1));
-        AlarmClockManager.setAlarm(this, alarmId, true, hour, minute, second, "label", new AlarmClock.DaysOfWeek().addAll());
+        /*
+        *   set alarm operations are moved into strategy
+        * */
+//        AlarmClockManager.clearAlarm(this);
+//        Uri uri = AlarmClockManager.addAlarm(this);
+//        int alarmId = Integer.valueOf(uri.getPathSegments().get(1));
+//        AlarmClockManager.setAlarm(this, alarmId, true, hour, minute, second, "label", new AlarmClock.DaysOfWeek().addAll());
     }
 
     void clearAlarmClock() {
