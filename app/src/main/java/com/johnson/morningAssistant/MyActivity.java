@@ -105,7 +105,6 @@ public class MyActivity extends Activity {
                     stopMorningAssistant();
                 }
                 else {
-                    showAlarmIcon(true);
                     if (Preferences.useVoiceToStart()) {
                         startMorningAssistantByVoice();
                     }
@@ -119,6 +118,7 @@ public class MyActivity extends Activity {
     }
 
     void setPowerImage(boolean status) {
+        showAlarmIcon(status);
         if (status) {
             findViewById(R.id.power).setBackgroundResource(R.drawable.pressed);
         }
@@ -264,7 +264,6 @@ public class MyActivity extends Activity {
     }
 
     void stopMorningAssistant() {
-        showAlarmIcon(false);
         clearAlarmClock();
         stopNotification();
         stopServiceManager();
