@@ -9,7 +9,7 @@
     <string name="appId">4d6774d0</string>
     <string name="advancedTime">advancedTime</string>
     <string name="advancedTimeDefault">15</string>
-
+    <string name="ringtone">ringtone</string>
 
     <string-array name="timeFormat">
         <item>12-hour</item>

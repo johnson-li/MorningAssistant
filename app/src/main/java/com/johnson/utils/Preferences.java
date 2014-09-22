@@ -2,6 +2,8 @@ package com.johnson.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 
 import com.johnson.morningAssistant.R;
@@ -56,5 +58,14 @@ public class Preferences {
 
     public static String getTimeFormat() {
         return sharedPreferences.getString(context.getString(R.string.timeFormat), "24");
+    }
+
+    public static float getVolume() {
+        return 10;
+    }
+
+    public static Uri getRingtone() {
+        String str = sharedPreferences.getString(context.getString(R.string.ringtone), RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI);
+        return Uri.parse(str);
     }
 }

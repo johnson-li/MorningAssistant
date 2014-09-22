@@ -33,7 +33,9 @@
     <PreferenceCategory
         android:title="Alarm" >
         <RingtonePreference
-            android:title="Alarm Ringtone" />
+            android:title="Alarm Ringtone"
+            android:ringtoneType="alarm"
+            android:key="@string/ringtone"/>
         <EditTextPreference
             android:title="Advanced Time"
             android:key="@string/advancedTime"
