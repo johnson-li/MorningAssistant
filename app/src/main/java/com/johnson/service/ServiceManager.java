@@ -12,6 +12,7 @@ import com.johnson.Log;
 import com.johnson.alarmStrategy.Strategy;
 import com.johnson.gettingUpState.AccelerometerMonitor;
 import com.johnson.gettingUpState.Monitor;
+import com.johnson.gettingUpState.RecordMonitor;
 import com.johnson.gettingUpState.WatchDog;
 import com.johnson.morningAssistant.MyActivity;
 import com.johnson.utils.Preferences;
@@ -35,6 +36,7 @@ public class ServiceManager extends Service{
     public static Set<Class> monitors = new HashSet<Class>();
     static {
         monitors.add(AccelerometerMonitor.class);
+        monitors.add(RecordMonitor.class);
         monitors.add(WatchDog.class);
     }
 

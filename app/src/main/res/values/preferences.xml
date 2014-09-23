@@ -10,6 +10,7 @@
     <string name="advancedTime">advancedTime</string>
     <string name="advancedTimeDefault">15</string>
     <string name="ringtone">ringtone</string>
+    <string name="keyWords">keyWords</string>
 
     <string-array name="timeFormat">
         <item>12-hour</item>
@@ -18,5 +19,8 @@
     <string-array name="timeFormatValue">
         <item>12</item>
         <item>24</item>
+    </string-array>
+    <string-array name="keyWords">
+        <item>起床</item>
     </string-array>
 </resources>

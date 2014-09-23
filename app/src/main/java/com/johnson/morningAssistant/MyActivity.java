@@ -26,6 +26,11 @@ import android.support.v4.app.NotificationCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -52,6 +57,7 @@ import java.util.List;
 public class MyActivity extends Activity {
     public static final String LOG_TAG = "johnsonLog";
     public static final int NOTIFICATION_ID = 0;
+    static final int ANIMATION_DURATION = 1000;
     Toast mToast;
     InitListener initListener = new InitListener() {
         @Override
@@ -120,11 +126,62 @@ public class MyActivity extends Activity {
     void setPowerImage(boolean status) {
         showAlarmIcon(status);
         if (status) {
+            setAlarmAnimation();
             findViewById(R.id.power).setBackgroundResource(R.drawable.pressed);
         }
         else {
+            unsetAlarmAnimation();
             findViewById(R.id.power).setBackgroundResource(R.drawable.unpressed);
         }
+    }
+
+    void setAlarmAnimation() {
+        TextView noAlarm = (TextView)findViewById(R.id.noAlarm);
+        TextView alarmTime = (TextView)findViewById(R.id.alarmTime);
+        String str = String.format("%2d  :  %2d", Preferences.getAlarmHour(), Preferences.getAlarmMinute());
+        alarmTime.setText(str);
+        AnimationSet animationSet = new AnimationSet(true);
+        int height = noAlarm.getLineHeight();
+        Animation alphaAnimation = new AlphaAnimation(1, 0);
+        Animation translateAnimation = new TranslateAnimation(0, 0, 0, -height);
+        alphaAnimation.setDuration(ANIMATION_DURATION);
+        translateAnimation.setDuration(ANIMATION_DURATION);
+        animationSet.addAnimation(alphaAnimation);
+        animationSet.addAnimation(translateAnimation);
+        animationSet.setFillAfter(true);
+        noAlarm.startAnimation(animationSet);
+
+        alphaAnimation = new AlphaAnimation(0, 1);
+        animationSet = new AnimationSet(true);
+        animationSet.addAnimation(alphaAnimation);
+        animationSet.addAnimation(translateAnimation);
+        animationSet.setDuration(ANIMATION_DURATION);
+        animationSet.setFillAfter(true);
+        alarmTime.startAnimation(animationSet);
+
+    }
+
+    void unsetAlarmAnimation() {
+        TextView noAlarm = (TextView)findViewById(R.id.noAlarm);
+        TextView alarmTime = (TextView)findViewById(R.id.alarmTime);
+        AnimationSet animationSet = new AnimationSet(true);
+        int height = noAlarm.getLineHeight();
+        Animation alphaAnimation = new AlphaAnimation(0, 1);
+        Animation translateAnimation = new TranslateAnimation(0, 0, -height, 0);
+        animationSet.addAnimation(alphaAnimation);
+        animationSet.addAnimation(translateAnimation);
+        animationSet.setDuration(ANIMATION_DURATION);
+        animationSet.setFillAfter(true);
+        noAlarm.startAnimation(animationSet);
+
+        alphaAnimation = new AlphaAnimation(1, 0);
+        animationSet = new AnimationSet(true);
+        animationSet.addAnimation(alphaAnimation);
+        animationSet.addAnimation(translateAnimation);
+        animationSet.setDuration(ANIMATION_DURATION);
+        animationSet.setFillAfter(true);
+        alarmTime.startAnimation(animationSet);
+
     }
 
     void initVoiceEngine() {

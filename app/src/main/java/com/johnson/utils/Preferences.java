@@ -8,6 +8,9 @@ import android.preference.PreferenceManager;
 
 import com.johnson.morningAssistant.R;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by johnson on 9/16/14.
  */
@@ -67,5 +70,9 @@ public class Preferences {
     public static Uri getRingtone() {
         String str = sharedPreferences.getString(context.getString(R.string.ringtone), RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI);
         return Uri.parse(str);
+    }
+
+    public static Set<String> getKeyWords() {
+        return sharedPreferences.getStringSet(context.getString(R.string.keyWords), new HashSet<String>());
     }
 }

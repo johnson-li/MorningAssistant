@@ -22,7 +22,7 @@ public abstract class Monitor extends Thread{
     }
 
     @Override
-    public void run() {
+    public final void run() {
         try {
             startMonitor();
 
