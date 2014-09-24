@@ -39,6 +39,9 @@
         <activity android:name=".AlarmActivity">
         </activity>
 
+        <activity android:name=".ScreenSlideActivity">
+        </activity>
+
         <activity android:name=".SettingActivity"
             android:theme="@style/PreferenceTheme">
             <meta-data

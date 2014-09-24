@@ -77,6 +77,10 @@ public class MyActivity extends Activity {
         }
         mToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
         initButton();
+        if (Preferences.firstStart()) {
+            startActivity(new Intent(this, ScreenSlideActivity.class));
+            Preferences.finishFirstHelp();
+        }
     }
 
     @Override

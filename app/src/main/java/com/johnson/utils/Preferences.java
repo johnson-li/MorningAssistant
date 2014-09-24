@@ -75,4 +75,12 @@ public class Preferences {
     public static Set<String> getKeyWords() {
         return sharedPreferences.getStringSet(context.getString(R.string.keyWords), new HashSet<String>());
     }
+
+    public static boolean firstStart() {
+        return sharedPreferences.getBoolean(context.getString(R.string.firstStart), true);
+    }
+
+    public static void finishFirstHelp() {
+        sharedPreferences.edit().putBoolean(context.getString(R.string.firstStart), false).apply();
+    }
 }

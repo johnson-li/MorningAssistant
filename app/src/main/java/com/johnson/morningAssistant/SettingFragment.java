@@ -2,6 +2,7 @@ package com.johnson.morningAssistant;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -80,6 +81,38 @@ public class SettingFragment extends PreferenceFragment{
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 findPreference(getString(R.string.timeFormat)).setSummary(newValue + "-hour mode");
                 return true;
+            }
+        });
+        findPreference(getString(R.string.about)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Morning Assistant\n" +
+                        "Version 1.0");
+                builder.setTitle("About");
+                builder.setPositiveButton("Confirm", null);
+                builder.create().show();
+                return false;
+            }
+        });
+        findPreference(getString(R.string.contactUs)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Design by Johnson\n" +
+                        "from Fudan University\n" +
+                        "email: johnsonli1993@163.com");
+                builder.setTitle("About");
+                builder.setPositiveButton("Confirm", null);
+                builder.create().show();
+                return false;
+            }
+        });
+        findPreference(getString(R.string.help)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startActivity(new Intent(getActivity(), ScreenSlideActivity.class));
+                return false;
             }
         });
     }

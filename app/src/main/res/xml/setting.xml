@@ -45,11 +45,14 @@
     <PreferenceCategory
         android:title="Others" >
         <Preference
+            android:key="@string/about"
             android:title="About"
             android:summary="@string/aboutSummary"/>
         <Preference
+            android:key="@string/help"
             android:title="Help" />
         <Preference
+            android:key="@string/contactUs"
             android:title="Contact Us" />
     </PreferenceCategory>
 </PreferenceScreen>
